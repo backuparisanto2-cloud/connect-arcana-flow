@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Copy, Pencil, Plus, Trash2, Upload } from "lucide-react";
 
@@ -7,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { DeviceImage } from "@/components/DeviceImage";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadDeviceImage } from "@/lib/device-image";
+import { syncDevicesFromBindings } from "@/lib/devices.functions";
 import {
   DEVICE_TYPES,
   EMPTY_DEVICE,
@@ -14,6 +16,7 @@ import {
   type Device,
   type DeviceInput,
 } from "@/lib/devices-types";
+
 
 export const Route = createFileRoute("/_gated/perangkat")({
   head: () => ({
