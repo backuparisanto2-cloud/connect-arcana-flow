@@ -1,4 +1,4 @@
-import { ExternalLink, ImageOff, LineChart, Maximize2 } from "lucide-react";
+import { ExternalLink, ImageOff, LineChart, Maximize2, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const FALLBACK_LINKS = [
@@ -12,22 +12,41 @@ const FALLBACK_LINKS = [
  * Ditampilkan pada ukuran asli (tidak diregangkan) agar tetap tajam.
  */
 export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
-  const [stamp, setStamp] = useState(0);
+  const [stamp, setStamp] = useState(() => Date.now());
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
+  const [spinning, setSpinning] = useState(false);
 
+  // Saat refreshKey dari dashboard berubah (status router baru), ganti gambar.
   useEffect(() => {
     setStamp(Date.now());
     setFailed(false);
     setLoaded(false);
+    setNatural(null);
   }, [refreshKey]);
+
+  // Saat stamp berganti (termasuk auto-refresh 60 detik & tombol Segarkan),
+  // anggap belum loaded agar skeleton muncul kembali, bukan img setengah-load.
+  useEffect(() => {
+    setFailed(false);
+    setLoaded(false);
+    setNatural(null);
+  }, [stamp]);
 
   // Segarkan gambar tiap 60 detik walau data router belum berubah.
   useEffect(() => {
     const id = setInterval(() => setStamp(Date.now()), 60000);
     return () => clearInterval(id);
   }, []);
+
+  const handleRefresh = () => {
+    setSpinning(true);
+    setStamp(Date.now());
+    // Ikon berputar sekilas untuk umpan balik, lepas dari kecepatan load gambar.
+    const t = setTimeout(() => setSpinning(false), 1200);
+    return () => clearTimeout(t);
+  };
 
   const src = `/api/graph/ether1.gif?t=${stamp}`;
 
@@ -37,8 +56,15 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
         <h3 className="flex items-center gap-2 font-display text-base font-semibold">
           <LineChart className="h-4 w-4 text-primary" /> Trafik Internet — Ether1 (Harian)
         </h3>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">MRTG · pembaruan tiap 60 detik</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
+          >
+            <RefreshCw className={`h-3 w-3 ${spinning ? "animate-spin" : ""}`} /> Segarkan
+          </button>
+          <span className="hidden text-xs text-muted-foreground sm:inline">MRTG · tiap 60 detik</span>
           {!failed && (
             <a
               href={src}
@@ -74,11 +100,15 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
         </div>
       ) : (
         <div className="mt-4 overflow-x-auto rounded-xl border border-border/70 bg-white p-3">
+          {/* Container in-flow: tinggi ditop skeleton sebelum load dan oleh gambar setelah load,
+              sehingga tidak pernah collapse ke 0. */}
           <div
-            className="relative mx-auto"
-            style={natural ? { width: natural.w, maxWidth: "none" } : undefined}
+            className="mx-auto"
+            style={natural ? { width: natural.w, maxWidth: "none" } : { width: 500, maxWidth: "none" }}
           >
-            {!loaded && <div className="h-[180px] w-full animate-pulse rounded-lg bg-secondary/60" />}
+            {!loaded && (
+              <div className="h-[170px] w-full animate-pulse rounded-lg bg-secondary/60" />
+            )}
             <img
               key={stamp}
               src={src}
@@ -91,7 +121,7 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
               onError={() => setFailed(true)}
               style={{ imageRendering: "pixelated" }}
               className={`mx-auto block max-w-none transition-opacity duration-300 ${
-                loaded ? "opacity-100" : "absolute inset-0 opacity-0"
+                loaded ? "opacity-100" : "opacity-0"
               }`}
             />
           </div>
