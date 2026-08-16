@@ -1,4 +1,4 @@
-import { ExternalLink, ImageOff, LineChart } from "lucide-react";
+import { ExternalLink, ImageOff, LineChart, Maximize2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const FALLBACK_LINKS = [
@@ -9,11 +9,13 @@ const FALLBACK_LINKS = [
 /**
  * Grafik MRTG ether1 (harian). Gambar diambil lewat proxy internal agar bisa
  * tampil di halaman https, dengan failsafe dua sumber di sisi server.
+ * Ditampilkan pada ukuran asli (tidak diregangkan) agar tetap tajam.
  */
 export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
   const [stamp, setStamp] = useState(0);
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
 
   useEffect(() => {
     setStamp(Date.now());
@@ -27,13 +29,27 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
     return () => clearInterval(id);
   }, []);
 
+  const src = `/api/graph/ether1.gif?t=${stamp}`;
+
   return (
     <section className="card-elevated mt-6 rounded-2xl border border-border p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 font-display text-base font-semibold">
           <LineChart className="h-4 w-4 text-primary" /> Trafik Internet — Ether1 (Harian)
         </h3>
-        <span className="text-xs text-muted-foreground">MRTG · pembaruan tiap 60 detik</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">MRTG · pembaruan tiap 60 detik</span>
+          {!failed && (
+            <a
+              href={src}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
+            >
+              <Maximize2 className="h-3 w-3" /> Buka gambar penuh
+            </a>
+          )}
+        </div>
       </div>
 
       {failed ? (
@@ -57,19 +73,25 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
           </div>
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border border-border/70 bg-white p-3">
-          <div className="relative mx-auto w-full max-w-[760px]">
-            {!loaded && (
-              <div className="absolute inset-0 animate-pulse rounded-lg bg-secondary/60" />
-            )}
+        <div className="mt-4 overflow-x-auto rounded-xl border border-border/70 bg-white p-3">
+          <div
+            className="relative mx-auto"
+            style={natural ? { width: natural.w, maxWidth: "none" } : undefined}
+          >
+            {!loaded && <div className="h-[180px] w-full animate-pulse rounded-lg bg-secondary/60" />}
             <img
               key={stamp}
-              src={`/api/graph/ether1.gif?t=${stamp}`}
+              src={src}
               alt="Grafik trafik harian interface ether1"
-              onLoad={() => setLoaded(true)}
+              onLoad={(e) => {
+                const img = e.currentTarget;
+                setNatural({ w: img.naturalWidth, h: img.naturalHeight });
+                setLoaded(true);
+              }}
               onError={() => setFailed(true)}
-              className={`mx-auto block h-auto w-full object-contain transition-opacity duration-300 ${
-                loaded ? "opacity-100" : "opacity-0"
+              style={{ imageRendering: "pixelated" }}
+              className={`mx-auto block max-w-none transition-opacity duration-300 ${
+                loaded ? "opacity-100" : "absolute inset-0 opacity-0"
               }`}
             />
           </div>
