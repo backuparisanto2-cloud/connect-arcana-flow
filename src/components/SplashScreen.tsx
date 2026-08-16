@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
+import logo from "../assets/logo.png";
+
 /**
- * Splash screen hi-tech sederhana, tampil sekali saat aplikasi dibuka.
+ * Splash screen hi-tech sederhana dengan logo aplikasi, tampil sekali saat dibuka.
  */
 export function SplashScreen() {
   const [visible, setVisible] = useState(true);
@@ -36,26 +38,31 @@ export function SplashScreen() {
         fading ? "opacity-0" : "opacity-100"
       }`}
     >
-      <svg
-        viewBox="0 0 120 120"
-        className="h-24 w-24 text-primary"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <circle cx="60" cy="60" r="52" className="opacity-20" />
-        <circle
-          cx="60"
-          cy="60"
-          r="52"
-          strokeDasharray="60 260"
-          strokeLinecap="round"
-          className="origin-center animate-spin [animation-duration:1.4s]"
+      <div className="relative flex h-36 w-36 items-center justify-center">
+        <svg
+          viewBox="0 0 120 120"
+          className="absolute inset-0 h-full w-full text-primary"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="60" cy="60" r="56" className="opacity-20" />
+          <circle
+            cx="60"
+            cy="60"
+            r="56"
+            strokeDasharray="60 290"
+            strokeLinecap="round"
+            className="origin-center animate-spin [animation-duration:1.4s]"
+          />
+          <circle cx="60" cy="60" r="46" className="opacity-25" />
+        </svg>
+        <img
+          src={logo}
+          alt="Logo Griya Arca Putri"
+          className="h-20 w-20 object-contain drop-shadow-sm"
         />
-        <circle cx="60" cy="60" r="34" className="opacity-30" />
-        <path d="M60 26v14M60 80v14M26 60h14M80 60h14" strokeLinecap="round" className="opacity-60" />
-        <circle cx="60" cy="60" r="10" className="animate-pulse" fill="currentColor" stroke="none" />
-      </svg>
+      </div>
 
       <p className="mt-6 font-display text-lg font-semibold tracking-wide">
         Griya <span className="text-gradient-brand">Arca Putri</span>
