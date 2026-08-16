@@ -118,6 +118,17 @@ function DevicesPage() {
     retry: false,
   });
 
+  // Sinkron manual lewat tombol "Sync sekarang".
+  const manualSync = useMutation({
+    mutationFn: async () => {
+      const res = await runSync();
+      if (res.ok && (res.created > 0 || res.updated > 0)) {
+        await queryClient.invalidateQueries({ queryKey: ["devices"] });
+      }
+      return res;
+    },
+  });
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["devices"] });
 
 
