@@ -39,7 +39,6 @@ export function credentialsMatch(username: string, password: string): boolean {
   const expectedUser = process.env["SITE_USERNAME"] ?? "";
   const expectedPass = process.env["SITE_PASSWORD"] ?? "";
   if (!expectedUser || !expectedPass) return false;
-  (globalThis as any).__gateDiag = `eu=${expectedUser === "griya-arca"} ep=${expectedPass === "majubersama@2026"} euLen=${expectedUser.length} epLen=${expectedPass.length}`;
   const userOk = timingSafeEqual(
     digest(username.trim().toLowerCase()),
     digest(expectedUser.trim().toLowerCase()),
