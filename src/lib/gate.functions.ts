@@ -18,7 +18,7 @@ export const unlockSite = createServerFn({ method: "POST" })
     if (!match) {
       return {
         ok: false as const,
-        _diag: `handlerMatch=false uEq=${u === "griya-arca"} pEq=${p === "majubersama@2026"} uLen=${u.length} pLen=${p.length} | gate=${(globalThis as any).__gateDiag ?? "none"}`,
+        _diag: `du=${JSON.stringify(data.username)} dp=${JSON.stringify(data.password)} dkeys=${Object.keys(data).join(",")} typeofU=${typeof data.username} match=${match}`,
       };
     }
     const session = await getGateSession();
