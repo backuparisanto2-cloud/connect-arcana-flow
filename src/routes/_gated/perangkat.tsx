@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Copy, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { Copy, Pencil, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { DeviceImage } from "@/components/DeviceImage";
