@@ -14,25 +14,13 @@ const FALLBACK_LINKS = [
 export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
   const [stamp, setStamp] = useState(() => Date.now());
   const [failed, setFailed] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
   const [spinning, setSpinning] = useState(false);
 
   // Saat refreshKey dari dashboard berubah (status router baru), ganti gambar.
   useEffect(() => {
     setStamp(Date.now());
     setFailed(false);
-    setLoaded(false);
-    setNatural(null);
   }, [refreshKey]);
-
-  // Saat stamp berganti (termasuk auto-refresh 60 detik & tombol Segarkan),
-  // anggap belum loaded agar skeleton muncul kembali, bukan img setengah-load.
-  useEffect(() => {
-    setFailed(false);
-    setLoaded(false);
-    setNatural(null);
-  }, [stamp]);
 
   // Segarkan gambar tiap 60 detik walau data router belum berubah.
   useEffect(() => {
@@ -42,10 +30,9 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
 
   const handleRefresh = () => {
     setSpinning(true);
+    setFailed(false);
     setStamp(Date.now());
-    // Ikon berputar sekilas untuk umpan balik, lepas dari kecepatan load gambar.
-    const t = setTimeout(() => setSpinning(false), 1200);
-    return () => clearTimeout(t);
+    window.setTimeout(() => setSpinning(false), 1200);
   };
 
   const src = `/api/graph/ether1.gif?t=${stamp}`;
@@ -100,31 +87,18 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
         </div>
       ) : (
         <div className="mt-4 overflow-x-auto rounded-xl border border-border/70 bg-white p-3">
-          {/* Container in-flow: tinggi ditop skeleton sebelum load dan oleh gambar setelah load,
-              sehingga tidak pernah collapse ke 0. */}
-          <div
-            className="mx-auto"
-            style={natural ? { width: natural.w, maxWidth: "none" } : { width: 500, maxWidth: "none" }}
-          >
-            {!loaded && (
-              <div className="h-[170px] w-full animate-pulse rounded-lg bg-secondary/60" />
-            )}
-            <img
-              key={stamp}
-              src={src}
-              alt="Grafik trafik harian interface ether1"
-              onLoad={(e) => {
-                const img = e.currentTarget;
-                setNatural({ w: img.naturalWidth, h: img.naturalHeight });
-                setLoaded(true);
-              }}
-              onError={() => setFailed(true)}
-              style={{ imageRendering: "pixelated" }}
-              className={`mx-auto block max-w-none transition-opacity duration-300 ${
-                loaded ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          </div>
+          {/* Embed langsung: satu <img> in-flow, tinggi tetap 170px (dimensi asli MRTG),
+              tidak ada absolute positioning atau opacity dance yang bisa menyebabkan collapse. */}
+          <img
+            key={stamp}
+            src={src}
+            alt="Grafik trafik harian interface ether1"
+            width={500}
+            height={170}
+            onError={() => setFailed(true)}
+            style={{ imageRendering: "pixelated" }}
+            className="mx-auto block h-[170px] w-[500px] max-w-none"
+          />
         </div>
       )}
     </section>
