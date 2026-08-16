@@ -126,12 +126,15 @@ export const syncDevicesFromBindings = createServerFn({ method: "POST" }).handle
     }
 
     const fromImport = (current.notes ?? "").includes(MARK);
-    const patch: Record<string, string | null> = { ip_address: ip, notes };
-    if (fromImport && b.comment) patch["name"] = name;
+    const patch: { ip_address: string | null; notes: string; name?: string } = {
+      ip_address: ip,
+      notes,
+    };
+    if (fromImport && b.comment) patch.name = name;
     const changed =
-      current.ip_address !== patch["ip_address"] ||
-      current.notes !== patch["notes"] ||
-      (patch["name"] !== undefined && current.name !== patch["name"]);
+      current.ip_address !== patch.ip_address ||
+      current.notes !== patch.notes ||
+      (patch.name !== undefined && current.name !== patch.name);
     if (!changed) continue;
     const { error } = await supabaseAdmin.from("devices").update(patch).eq("id", current.id);
     if (!error) updated += 1;
