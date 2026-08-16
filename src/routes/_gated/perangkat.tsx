@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Copy, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { Copy, Pencil, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { DeviceImage } from "@/components/DeviceImage";
@@ -118,6 +118,17 @@ function DevicesPage() {
     retry: false,
   });
 
+  // Sinkron manual lewat tombol "Sync sekarang".
+  const manualSync = useMutation({
+    mutationFn: async () => {
+      const res = await runSync();
+      if (res.ok && (res.created > 0 || res.updated > 0)) {
+        await queryClient.invalidateQueries({ queryKey: ["devices"] });
+      }
+      return res;
+    },
+  });
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["devices"] });
 
 
@@ -187,27 +198,43 @@ function DevicesPage() {
               {devices.length} perangkat tercatat.
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {sync.isFetching
+              {manualSync.isPending || sync.isFetching
                 ? "Menyinkronkan IP-Binding dari MikroTik…"
-                : sync.data?.ok
-                  ? `Sinkron dari MikroTik: ${sync.data.created} baru, ${sync.data.updated} diperbarui.`
-                  : sync.data
-                    ? `Sinkron MikroTik gagal: ${sync.data.error}`
-                    : sync.isError
-                      ? "Sinkron MikroTik gagal: router tidak terjangkau."
-                      : ""}
+                : manualSync.data?.ok
+                  ? `Sinkron dari MikroTik: ${manualSync.data.created} baru, ${manualSync.data.updated} diperbarui.`
+                  : manualSync.data
+                    ? `Sinkron MikroTik gagal: ${manualSync.data.error}`
+                    : sync.data?.ok
+                      ? `Sinkron dari MikroTik: ${sync.data.created} baru, ${sync.data.updated} diperbarui.`
+                      : sync.data
+                        ? `Sinkron MikroTik gagal: ${sync.data.error}`
+                        : sync.isError
+                          ? "Sinkron MikroTik gagal: router tidak terjangkau."
+                          : ""}
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setUploadError(null);
-              setEditing({ values: { ...EMPTY_DEVICE } });
-            }}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4" /> Tambah perangkat
-          </button>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <button
+              onClick={() => manualSync.mutate()}
+              disabled={manualSync.isPending || sync.isFetching}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${manualSync.isPending || sync.isFetching ? "animate-spin" : ""}`}
+              />
+              Sync sekarang
+            </button>
+            <button
+              onClick={() => {
+                setUploadError(null);
+                setEditing({ values: { ...EMPTY_DEVICE } });
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4" /> Tambah perangkat
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
