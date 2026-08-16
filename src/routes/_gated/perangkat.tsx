@@ -198,15 +198,19 @@ function DevicesPage() {
               {devices.length} perangkat tercatat.
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {sync.isFetching
+              {manualSync.isPending || sync.isFetching
                 ? "Menyinkronkan IP-Binding dari MikroTik…"
-                : sync.data?.ok
-                  ? `Sinkron dari MikroTik: ${sync.data.created} baru, ${sync.data.updated} diperbarui.`
-                  : sync.data
-                    ? `Sinkron MikroTik gagal: ${sync.data.error}`
-                    : sync.isError
-                      ? "Sinkron MikroTik gagal: router tidak terjangkau."
-                      : ""}
+                : manualSync.data?.ok
+                  ? `Sinkron dari MikroTik: ${manualSync.data.created} baru, ${manualSync.data.updated} diperbarui.`
+                  : manualSync.data
+                    ? `Sinkron MikroTik gagal: ${manualSync.data.error}`
+                    : sync.data?.ok
+                      ? `Sinkron dari MikroTik: ${sync.data.created} baru, ${sync.data.updated} diperbarui.`
+                      : sync.data
+                        ? `Sinkron MikroTik gagal: ${sync.data.error}`
+                        : sync.isError
+                          ? "Sinkron MikroTik gagal: router tidak terjangkau."
+                          : ""}
             </p>
           </div>
 
