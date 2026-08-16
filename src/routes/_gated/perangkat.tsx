@@ -186,7 +186,19 @@ function DevicesPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               {devices.length} perangkat tercatat.
             </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {sync.isFetching
+                ? "Menyinkronkan IP-Binding dari MikroTik…"
+                : sync.data?.ok
+                  ? `Sinkron dari MikroTik: ${sync.data.created} baru, ${sync.data.updated} diperbarui.`
+                  : sync.data
+                    ? `Sinkron MikroTik gagal: ${sync.data.error}`
+                    : sync.isError
+                      ? "Sinkron MikroTik gagal: router tidak terjangkau."
+                      : ""}
+            </p>
           </div>
+
           <button
             onClick={() => {
               setUploadError(null);
