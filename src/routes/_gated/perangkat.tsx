@@ -102,7 +102,24 @@ function DevicesPage() {
     },
   });
 
+  // Sinkron otomatis IP-Binding hotspot MikroTik setiap halaman dibuka.
+  const runSync = useServerFn(syncDevicesFromBindings);
+  const sync = useQuery({
+    queryKey: ["devices-binding-sync"],
+    queryFn: async () => {
+      const res = await runSync();
+      if (res.ok && (res.created > 0 || res.updated > 0)) {
+        await queryClient.invalidateQueries({ queryKey: ["devices"] });
+      }
+      return res;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
+    retry: false,
+  });
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["devices"] });
+
 
   const saveMutation = useMutation({
     mutationFn: async (payload: { id?: string; values: DeviceInput }) => {
