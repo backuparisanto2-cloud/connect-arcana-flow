@@ -215,7 +215,15 @@ function Dashboard() {
                     <tbody>
                       {status.interfaces.map((i) => (
                         <tr key={i.name} className="border-t border-border/60">
-                          <td className="py-2.5 font-medium">{i.name}</td>
+                          <td className="py-2.5 font-medium">
+                            {i.comment ? (
+                              <span className="mb-0.5 block text-[11px] leading-tight font-normal text-primary">
+                                {i.comment}
+                              </span>
+                            ) : null}
+                            {i.name}
+                          </td>
+
                           <td className="py-2.5 text-muted-foreground">{i.type}</td>
                           <td className="py-2.5 text-right tabular-nums">{formatBytes(i.rxBytes)}</td>
                           <td className="py-2.5 text-right tabular-nums">{formatBytes(i.txBytes)}</td>
