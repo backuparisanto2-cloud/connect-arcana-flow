@@ -12,8 +12,6 @@ export const unlockSite = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     const { credentialsMatch, getGateSession } = await import("./gate.server");
-    const u = process.env["SITE_USERNAME"] ?? "";
-    const p = process.env["SITE_PASSWORD"] ?? "";
     if (!credentialsMatch(data.username, data.password)) {
       return { ok: false as const };
     }
