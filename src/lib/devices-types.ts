@@ -3,9 +3,12 @@ export const DEVICE_TYPES = [
   "Router",
   "Switch",
   "CCTV",
+  "IP-CAM",
+  "NVR",
   "ONT/Modem",
   "Lainnya",
 ] as const;
+
 
 export type DeviceType = (typeof DEVICE_TYPES)[number];
 
