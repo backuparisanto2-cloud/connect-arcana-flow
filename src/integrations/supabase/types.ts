@@ -19,12 +19,14 @@ export type Database = {
           created_at: string
           device_type: string
           id: string
+          image_url: string | null
           ip_address: string | null
           location: string | null
           mac_address: string | null
           name: string
           notes: string | null
           password: string | null
+          serial_number: string | null
           ssid: string | null
           updated_at: string
           username: string | null
@@ -34,12 +36,14 @@ export type Database = {
           created_at?: string
           device_type?: string
           id?: string
+          image_url?: string | null
           ip_address?: string | null
           location?: string | null
           mac_address?: string | null
           name: string
           notes?: string | null
           password?: string | null
+          serial_number?: string | null
           ssid?: string | null
           updated_at?: string
           username?: string | null
@@ -49,12 +53,14 @@ export type Database = {
           created_at?: string
           device_type?: string
           id?: string
+          image_url?: string | null
           ip_address?: string | null
           location?: string | null
           mac_address?: string | null
           name?: string
           notes?: string | null
           password?: string | null
+          serial_number?: string | null
           ssid?: string | null
           updated_at?: string
           username?: string | null
