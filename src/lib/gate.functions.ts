@@ -14,11 +14,8 @@ export const unlockSite = createServerFn({ method: "POST" })
     const { credentialsMatch, getGateSession } = await import("./gate.server");
     const u = process.env["SITE_USERNAME"] ?? "";
     const p = process.env["SITE_PASSWORD"] ?? "";
-    const match = credentialsMatch(data.username, data.password);
-    if (!match) {
-      const diag = `du=${JSON.stringify(data.username)} dp=${JSON.stringify(data.password)} dkeys=${Object.keys(data).join(",")} typeofU=${typeof data.username} typeofP=${typeof data.password} match=${match}`;
-      try { await (await import("node:fs")).writeFileSync("/tmp/browser/mrtg/serverdiag.txt", diag); } catch {}
-      return { ok: false as const, _diag: diag };
+    if (!credentialsMatch(data.username, data.password)) {
+      return { ok: false as const };
     }
     const session = await getGateSession();
     await session.update({ unlocked: true });
