@@ -210,15 +210,27 @@ function DevicesPage() {
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setUploadError(null);
-              setEditing({ values: { ...EMPTY_DEVICE } });
-            }}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4" /> Tambah perangkat
-          </button>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <button
+              onClick={() => manualSync.mutate()}
+              disabled={manualSync.isPending || sync.isFetching}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${manualSync.isPending || sync.isFetching ? "animate-spin" : ""}`}
+              />
+              Sync sekarang
+            </button>
+            <button
+              onClick={() => {
+                setUploadError(null);
+                setEditing({ values: { ...EMPTY_DEVICE } });
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4" /> Tambah perangkat
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
