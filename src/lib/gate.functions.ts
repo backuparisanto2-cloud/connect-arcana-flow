@@ -16,7 +16,10 @@ export const unlockSite = createServerFn({ method: "POST" })
     const p = process.env["SITE_PASSWORD"] ?? "";
     const match = credentialsMatch(data.username, data.password);
     if (!match) {
-      return { ok: false as const, _diag: { userLen: u.length, passLen: p.length, match } };
+      return {
+        ok: false as const,
+        _diag: `match=false uLen=${u.length} pLen=${p.length} uEq=${u === "griya-arca"} pEq=${p === "majubersama@2026"}`,
+      };
     }
     const session = await getGateSession();
     await session.update({ unlocked: true });
