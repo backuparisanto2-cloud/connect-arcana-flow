@@ -13,12 +13,19 @@ const FALLBACK_LINKS = [
 export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
   const [stamp, setStamp] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setStamp(Date.now());
     setFailed(false);
+    setLoaded(false);
   }, [refreshKey]);
 
+  // Segarkan gambar tiap 60 detik walau data router belum berubah.
+  useEffect(() => {
+    const id = setInterval(() => setStamp(Date.now()), 60000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <section className="card-elevated mt-6 rounded-2xl border border-border p-4 sm:p-5">
@@ -50,14 +57,22 @@ export function Ether1Graph({ refreshKey }: { refreshKey?: number }) {
           </div>
         </div>
       ) : (
-        <div className="mt-4 overflow-x-auto rounded-xl border border-border/70 bg-card p-2">
-          <img
-            src={`/api/graph/ether1.gif?t=${stamp}`}
-            alt="Grafik trafik harian interface ether1"
-            loading="lazy"
-            onError={() => setFailed(true)}
-            className="mx-auto h-auto w-full min-w-[320px] max-w-[560px]"
-          />
+        <div className="mt-4 rounded-xl border border-border/70 bg-white p-3">
+          <div className="relative mx-auto w-full max-w-[760px]">
+            {!loaded && (
+              <div className="absolute inset-0 animate-pulse rounded-lg bg-secondary/60" />
+            )}
+            <img
+              key={stamp}
+              src={`/api/graph/ether1.gif?t=${stamp}`}
+              alt="Grafik trafik harian interface ether1"
+              onLoad={() => setLoaded(true)}
+              onError={() => setFailed(true)}
+              className={`mx-auto block h-auto w-full object-contain transition-opacity duration-300 ${
+                loaded ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          </div>
         </div>
       )}
     </section>
